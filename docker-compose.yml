@@ -1,0 +1,157 @@
+
+```yaml
+version: '3.8'
+
+services:
+  wordpress:
+    image: wordpress:latest
+    container_name: woocommerce-site
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: mysql
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DEBUG: 1
+    volumes:
+      - ./:/var/www/html/wp-content/plugins/woocommerce
+      - ./wordpress-data:/var/www/html/wp-content
+    depends_on:
+      - mysql
+    networks:
+      - woocommerce-net
+
+  mysql:
+    image: mysql:8.0
+    container_name: woocommerce-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - woocommerce-net
+
+volumes:
+  mysql-data:
+
+networks:
+  woocommerce-net:
+```
+
+২. রান করার স্ক্রিপ্ট তৈরি করুন
+
+run.sh (Linux/Mac):
+
+```bash
+#!/bin/bash
+
+echo "🚀 WooCommerce Docker Environment Starting..."
+
+# Docker containers start
+docker-compose up -d
+
+echo "⏳ Waiting for containers to be ready..."
+sleep 30
+
+# WooCommerce activate
+docker-compose exec wordpress wp plugin activate woocommerce --allow-root
+
+echo "✅ WooCommerce is running!"
+echo "📦 WordPress: http://localhost:8080"
+echo "🔧 Admin: http://localhost:8080/wp-admin"
+echo "   Username: admin"
+echo "   Password: password"
+```
+
+run.bat (Windows):
+
+```batch
+@echo off
+echo 🚀 WooCommerce Docker Environment Starting...
+
+docker-compose up -d
+
+echo ⏳ Waiting for containers to be ready...
+timeout /t 30 /nobreak
+
+docker-compose exec wordpress wp plugin activate woocommerce --allow-root
+
+echo ✅ WooCommerce is running!
+echo 📦 WordPress: http://localhost:8080
+echo 🔧 Admin: http://localhost:8080/wp-admin
+echo    Username: admin
+echo    Password: password
+```
+
+৩. সরাসরি রান করার কমান্ড
+
+```bash
+# ১. ফাইলগুলো সেভ করার পর শুধু এই কমান্ড দিন:
+docker-compose up -d
+
+# ২. WooCommerce একটিভেট করুন
+docker-compose exec wordpress wp plugin activate woocommerce --allow-root
+
+# ৩. সাইট ওপেন করুন
+# Browser এ যান: http://localhost:8080
+```
+
+৪. WordPress সেটআপ কমপ্লিট করার জন্য
+
+```bash
+# WordPress installation complete করুন
+docker-compose exec wordpress wp core install \
+  --url=http://localhost:8080 \
+  --title="WooCommerce Store" \
+  --admin_user=admin \
+  --admin_password=password \
+  --admin_email=admin@example.com \
+  --allow-root
+```
+
+৫. স্টপ করার জন্য
+
+```bash
+# Containers বন্ধ করুন
+docker-compose down
+
+# Data সহ সম্পূর্ণ বন্ধ
+docker-compose down -v
+```
+
+৬. Quick Start (সব একসাথে)
+
+quick-start.sh:
+
+```bash
+#!/bin/bash
+echo "🔧 Setting up WooCommerce Development Environment..."
+
+# Build and start
+docker-compose up -d
+
+# Wait for MySQL
+sleep 30
+
+# Install WordPress
+docker-compose exec wordpress wp core install \
+  --url=http://localhost:8080 \
+  --title="My WooCommerce Store" \
+  --admin_user=admin \
+  --admin_password=password \
+  --admin_email=admin@example.com \
+  --allow-root
+
+# Activate WooCommerce
+docker-compose exec wordpress wp plugin activate woocommerce --allow-root
+
+echo "🎉 Setup Complete!"
+echo "🌐 Store: http://localhost:8080"
+echo "⚙️  Admin: http://localhost:8080/wp-admin"
+echo "   Username: admin"
+echo "   Password: password"
+```
