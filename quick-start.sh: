@@ -1,0 +1,26 @@
+#!/bin/bash
+echo "🔧 Setting up WooCommerce Development Environment..."
+
+# Build and start
+docker-compose up -d
+
+# Wait for MySQL
+sleep 30
+
+# Install WordPress
+docker-compose exec wordpress wp core install \
+  --url=http://localhost:8080 \
+  --title="My WooCommerce Store" \
+  --admin_user=admin \
+  --admin_password=password \
+  --admin_email=admin@example.com \
+  --allow-root
+
+# Activate WooCommerce
+docker-compose exec wordpress wp plugin activate woocommerce --allow-root
+
+echo "🎉 Setup Complete!"
+echo "🌐 Store: http://localhost:8080"
+echo "⚙️  Admin: http://localhost:8080/wp-admin"
+echo "   Username: admin"
+echo "   Password: password"
