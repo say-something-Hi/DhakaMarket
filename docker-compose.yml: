@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # WordPress + WooCommerce - http://localhost
+  wordpress:
+    image: wordpress:latest
+    container_name: dhaka-market
+    ports:
+      - "80:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DEBUG: 1
+    volumes:
+      - ./plugins/woocommerce:/var/www/html/wp-content/plugins/woocommerce
+      - ./plugins/dhaka-market-bot:/var/www/html/wp-content/plugins/dhaka-market-bot
+    depends_on:
+      - db
+    networks:
+      - dhaka-network
+
+  # Database
+  db:
+    image: mysql:8.0
+    container_name: dhaka-market-db
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - dhaka-network
+
+  # Dhaka Market Bot - http://localhost:3000
+  bot:
+    image: node:20-alpine
+    container_name: dhaka-market-bot
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: sh -c "npm install && node dhaka-bot.js"
+    environment:
+      - NODE_ENV=development
+    networks:
+      - dhaka-network
+
+volumes:
+  db_data:
+
+networks:
+  dhaka-network:
+    driver: bridge
