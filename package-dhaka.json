@@ -1,0 +1,15 @@
+{
+  "name": "dhaka-market-bot",
+  "version": "1.0.0",
+  "description": "Dhaka Market Order Bot for WooCommerce Monorepo",
+  "main": "dhaka-bot.js",
+  "scripts": {
+    "start": "node dhaka-bot.js",
+    "dev": "node dhaka-bot.js",
+    "bot": "node dhaka-bot.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "devDependencies": {}
+}
